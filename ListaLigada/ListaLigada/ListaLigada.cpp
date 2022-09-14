@@ -1,3 +1,5 @@
+
+#include <cstdlib>
 #include <iostream>
 using namespace std;
 
@@ -7,7 +9,8 @@ struct NO {
 	NO* prox;
 };
 
-NO* primeiro = NULL;
+NO* primeiroElemento = NULL;
+NO* lastElement = NULL;
 
 // headers
 void menu();
@@ -26,11 +29,12 @@ int main()
 	menu();
 }
 
-void menu()
-{
+void menu() {
 	int op = 0;
 	while (op != 7) {
 		system("cls"); // somente no windows
+		// system("clear"); // somente no linux e no powershell
+
 		cout << "Menu Lista Ligada";
 		cout << endl << endl;
 		cout << "1 - Inicializar Lista \n";
@@ -58,6 +62,7 @@ void menu()
 			break;
 		case 6: excluirElemento();
 			break;
+
 		case 7:
 			return;
 		default:
@@ -65,29 +70,28 @@ void menu()
 		}
 
 		system("pause"); // somente no windows
+		// system("read -p 'Press [Enter] key to start ...'"); // somente no linux
 	}
 }
 
-void inicializar()
-{
-	// se a lista já possuir elementos
-// libera a memoria ocupada
-	NO* aux = primeiro;
+void inicializar() {
+	// se a lista jï¿½ possuir elementos
+	// libera a memoria ocupada
+	NO* aux = primeiroElemento;
 	while (aux != NULL) {
 		NO* paraExcluir = aux;
 		aux = aux->prox;
 		free(paraExcluir);
 	}
 
-	primeiro = NULL;
+	primeiroElemento = NULL;
 	cout << "Lista inicializada \n";
-
 }
 
 void exibirQuantidadeElementos() {
 
 	int nElementos = 0;
-	NO* aux = primeiro;
+	NO* aux = primeiroElemento;
 	while (aux != NULL) {
 		nElementos++;
 		aux = aux->prox;
@@ -96,15 +100,14 @@ void exibirQuantidadeElementos() {
 
 }
 
-void exibirElementos()
-{
-	if (primeiro == NULL) {
+void exibirElementos() {
+	if (primeiroElemento == NULL) {
 		cout << "Lista vazia \n";
 		return;
 	}
 	else {
 		cout << "Elementos: \n";
-		NO* aux = primeiro;
+		NO* aux = primeiroElemento;
 		while (aux != NULL) {
 			cout << aux->valor << endl;
 			aux = aux->prox;
@@ -112,8 +115,7 @@ void exibirElementos()
 	}
 }
 
-void inserirElemento()
-{
+void inserirElemento() {
 	// aloca memoria dinamicamente para o novo elemento
 	NO* novo = (NO*)malloc(sizeof(NO));
 	if (novo == NULL)
@@ -125,29 +127,76 @@ void inserirElemento()
 	cin >> novo->valor;
 	novo->prox = NULL;
 
-	if (primeiro == NULL)
+	NO* alreadyExists = posicaoElemento(novo->valor);
+
+	if(alreadyExists) {
+		cout << "Elemento jÃ¡ existe na lista, tente outro.";
+		return;
+	}
+
+	if (primeiroElemento == NULL)
 	{
-		primeiro = novo;
+		primeiroElemento = novo;
+		lastElement = novo;
 	}
 	else
 	{
-		// procura o final da lista
-		NO* aux = primeiro;
-		while (aux->prox != NULL) {
-			aux = aux->prox;
-		}
-		aux->prox = novo;
+		// Insere no final da lista
+		lastElement->prox = novo;
+		lastElement = novo;
 	}
 }
 
-void excluirElemento()
-{
+void excluirElemento() {
+	int valor;
+	cout << "Digite o valor que quer excluir: ";
+	cin >> valor;
 
+	NO* aux = primeiroElemento;
+	while (aux->prox != NULL) {
+		NO* proximoElemento = aux->prox;
+
+		if (primeiroElemento->valor == valor) {
+			free(primeiroElemento);
+			primeiroElemento = proximoElemento;
+			break;
+		}
+
+		if(proximoElemento->valor == valor) {
+			aux->prox = proximoElemento->prox;
+
+			free(proximoElemento);
+			break;
+		}
+		aux = aux->prox;
+	}
 }
 
-void buscarElemento()
-{
+void buscarElemento() {
+	int valor;
+	cout << "Digite o valor que quer excluir: ";
+	cin >> valor;
 
+	NO* element = posicaoElemento(valor);
+
+	if(element == NULL) {
+		cout << "Nenhum elemento foi encontrado com esse valor.";
+		return;
+	}
+
+	cout << element->valor;
 }
 
-
+// retorna um ponteiro para o elemento buscado
+// ou NULL se o elemento nï¿½o estiver na lista
+NO* posicaoElemento(int numero) {
+	NO* aux = primeiroElemento;
+	while (aux != NULL) {
+		if (aux->valor == numero)
+		{
+			break;
+		}
+		aux = aux->prox;
+	}
+	return aux;
+}
